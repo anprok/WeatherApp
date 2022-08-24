@@ -1,0 +1,26 @@
+type: code
+files:
+- name: main.py
+  visible: true
+  text: |-
+    from flask import Flask, make_response
+    import logging
+
+
+    app = Flask('main')
+
+    @app.route('/')
+    def main_view():
+        return make_response('<h1>Today is a good day</h1>', 200)
+
+    @app.#decorator here
+    def processor(response):
+        #your code here
+        return response
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17617#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Wed, 24 Aug 2022 12:07:09 UTC
+record: -1

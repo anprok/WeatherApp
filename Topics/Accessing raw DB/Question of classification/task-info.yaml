@@ -1,0 +1,17 @@
+type: code
+files:
+- name: main.py
+  visible: true
+  text: |-
+    cursor = conn.cursor()
+
+    #write your code here
+
+    # In this task you mustn't close connection to DB.(Due to the checking features)
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/18531#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Wed, 24 Aug 2022 11:33:30 UTC
+record: -1

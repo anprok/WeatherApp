@@ -1,0 +1,24 @@
+type: code
+files:
+- name: main.py
+  visible: true
+  text: |-
+    from flask import Flask, flash, get_flashed_messages
+
+    app = Flask('main')
+
+    @app.route('/')
+    def main_view():
+        flash("It's cold in the graveyard", 'info')
+        flash("You don't know whos is behind you.", 'ahtung')
+        flash('There is no pain', 'error')
+        flash('What are you receiving', 'interest')
+
+        return get_flashed_messages()
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17349#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Wed, 24 Aug 2022 11:46:28 UTC
+record: -1

@@ -1,0 +1,20 @@
+type: choice
+is_multiple_choice: true
+options:
+- text: 'As with a regular dictionary: <code>app. config[''SETTING''] = VALUE</code>.'
+- text: Using <code>app. config('SETTING', 'VALUE')</code>.
+- text: 'As with a decorator: we decorate the function that is responsible for the
+    corresponding setting.'
+- text: We should use the update method that takes a dictionary with the setting names
+    and values.
+files:
+- name: main.py
+  visible: true
+  text: |+
+    #  You can experiment here, it won’t be checked
+
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17359#comment
+status: Solved
+record: -1
+local_check: false

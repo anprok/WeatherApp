@@ -1,0 +1,25 @@
+type: code
+files:
+- name: main.py
+  visible: true
+  text: |-
+    from flask import Flask, redirect
+
+    app = Flask('main')
+
+    url = # your code here
+
+    @app.route('INSERT URL HERE')
+    def view_function():
+        return "Haha! I'm out of reach!"
+
+    @app.route('/just/redirect/me')
+    def redirector_func():
+        pass # insert your code here to redirect
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17346#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Wed, 24 Aug 2022 11:44:12 UTC
+record: -1

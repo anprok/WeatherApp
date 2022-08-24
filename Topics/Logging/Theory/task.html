@@ -1,0 +1,112 @@
+<h2>Logging</h2>
+<p>In this topic, we will discuss the way we log our data. It's a good thing to know because some errors are difficult to track down just by looking at the code. Provided that you have a log of all queries and their results (code and decryption), it takes no pain to do it. Let's start!</p>
+
+<h5 id="simple-logging">Simple logging</h5>
+
+<p>First things first — we need to create an application that stores our requests. For this, we need to import the necessary objects:</p>
+
+<pre><code class="language-python">from flask import request
+from flask import make_response
+from flask import Flask
+import datetime as dt
+</code></pre>
+
+<p>We also import the <code class="language-python">datetime</code> module. It allows us to get the current time and date. Next, let's create a function that will log our information to a <em>.txt</em> file:</p>
+
+<pre><code class="language-python">def log(*args):
+    text = ' '.join([str(element) for element in args])
+    with open('log.txt', 'a') as log_file:
+        log_file.write(text + '\n')</code></pre>
+
+<p>We refer to <code class="language-python">*args</code> here to store an unlimited number of positional arguments to the args variable (yes, <code class="language-python">args</code> is the variable name, and we can change it to any other). We will use it as a container for all information we want to log. Of course, we can log data directly in the view function, but using a separate function is considered good coding practice. The next step is familiar to us: we need to create a standard web application:</p>
+
+<pre><code class="language-python">app = Flask('main')
+
+@app.route('/no-content')
+def no_data():
+    response = make_response('Hello there!', 204)
+    return response
+
+@app.route('/some-content')
+def data():
+    response = make_response('Hello there! There are data!', 200)
+    return response
+</code></pre>
+
+<p>We've defined two view functions, and now, it's time for something new! Let's create a function that will log every request that our server receives. We can do this by using the decorator <code class="language-python">@app.after_request</code>. As the name indicates, the following function is executed after every request. This is a neat device if we need to create a callback function. There are more decorators like this, such as <code class="language-python">@app.before_request</code> and <code class="language-python">@app.before_first_request</code>. You can find them in the <a target="_blank" target="_blank" target="_blank" target="_blank" target="_blank" href="https://flask.palletsprojects.com/en/2.0.x/api/#flask.Flask.before_request" rel="noopener noreferrer nofollow">Official documentation</a>.</p>
+
+<pre><code class="language-python">@app.after_request
+def after_request(response):
+    log(dt.datetime.now(), 
+        request.remote_addr, 
+        request.method, 
+        request.scheme, 
+        request.full_path, 
+        response.status
+    )
+
+    return response</code></pre>
+
+<p>This function receives the response and transfers its content to the log function:</p>
+
+<table align="center" border="1" cellpadding="1" cellspacing="1" style="width: 500px;">
+	<tbody>
+		<tr>
+			<td><code class="language-python">remote_addr</code></td>
+			<td>Displays the client remote address</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">method</code></td>
+			<td>Displays a request method</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">scheme</code></td>
+			<td>Shows a request HTTP scheme</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">full_path</code></td>
+			<td>Shows full URL to a certain web app or site</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">status</code></td>
+			<td>Shows the request status code</td>
+		</tr>
+	</tbody>
+</table>
+
+<p>This information is passed to the <code class="language-python">log</code> function and to the log file!</p>
+
+<p>To see that it works, let's start our app and make requests to it. In the console, the server displays the requests in the following form:</p>
+
+<p style="text-align: center;"><img alt="" height="232" src="https://ucarecdn.com/8074d2b1-d7d4-442b-b258-a29c7689d62f/" width="800"></p>
+
+<p>If we open <em>log.txt</em>, we will find a lot of different requests there. You can configure logging by adjusting the log function:</p>
+
+<p style="text-align: center;"><img alt="" height="207" src="https://ucarecdn.com/50f4cca5-d138-4d2c-b063-c9267a23fe05/" width="600"></p>
+
+<p>Our logging works! We've created a function to store the records of our server. There are also more advanced ways to logging. Let's figure them out!</p>
+
+<h5 id="advanced-logging">Advanced logging</h5>
+
+<p>In this part of the topic, we will talk about a very cool module called <code class="language-python">logging</code>. It can log our information quickly and conveniently — we need to write one code line; it will log whatever we want! First, we need to understand the urgency hierarchy. There 5 urgency levels: <code class="language-python">DEBUG</code>, <code class="language-python">INFO</code>, <code class="language-python">WARNING</code>, <code class="language-python">ERROR</code>, and <code class="language-python">CRITICAL</code>. The <code class="language-python">CRITICAL</code> messages are of most importance, while <code class="language-python">DEBUG</code> is less important. We import the logging library and configure the logging options:</p>
+
+<pre><code class="language-python">import logging
+
+logging.basicConfig(filename='app.txt', level=logging.DEBUG)</code></pre>
+
+<p>We've specified the filename of the log file and the logging level. Now, we are ready to log!</p>
+
+<pre><code class="language-python">logging.info('This is just information message')
+logging.warning('This is some warning message')
+logging.error('This is quite severe message')
+logging.critical('This is a very severe message. Please, take some actions')</code></pre>
+
+<p>When we open the file, we will see something like this:</p>
+
+<p><img alt="" height="210" name="2021-09-19_17-56-07.png" src="https://ucarecdn.com/78cae0ee-3940-4e8e-b7be-ce3fcb047e45/" width="852"></p>
+
+<p>We can log any information we need just by selecting different urgency levels. Depending on the task, you can log only the most important notifications, or, for example, errors for debugging or info messages for checking whether the information has reached the users and processed, and so on.</p>
+
+<h5 id="conclusion">Conclusion</h5>
+
+<p>In this topic, we've discussed basic and advanced logging. We can now effectively receive and save messages, requests, errors, and many more. Good luck with your study!</p>

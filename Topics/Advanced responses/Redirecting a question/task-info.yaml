@@ -1,0 +1,18 @@
+type: choice
+is_multiple_choice: false
+options:
+- text: Redirects users to the main page.
+- text: Redirects users' request to a different URL.
+- text: Sends users to a specific page, different from the one they had.
+- text: Notifies users that they need to go to the specified URL.
+files:
+- name: main.py
+  visible: true
+  text: |+
+    #  You can experiment here, it won’t be checked
+
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17342#comment
+status: Solved
+record: -1
+local_check: false

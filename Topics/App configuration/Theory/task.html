@@ -1,0 +1,70 @@
+<h2>App configuration</h2>
+<html><body><p></p><p>In this topic, we will discuss how to configure an application. Imagine you've written the code, and everything works fine. Is this really the end? Unfortunately, no. You also need to <strong>configure </strong>the application. It's very important, as you need to indicate the limits of what the app can do. For example, you can allow the server to update the app automatically without restarting it. You can also configure the protection of the data and server from hackers. Let's begin!</p>
+<h5 id="general-settings">General settings</h5>
+<p>First, let's talk about the <strong>development mode</strong>. If you remember, when you start a server, it prints several lines to the console:</p>
+<p style="text-align: center;"><img alt="" height="125" src="https://ucarecdn.com/394287c9-d33a-44d1-8283-950d9b196053/" width="746"/></p>
+<p><br/>
+Take a look at <code class="language-python">* Debug mode: off</code>. It states that we are not in the development mode right now. The development mode basically provides you with a built-in debugger. It can point out your mistakes and show a detailed traceback in the browser. There are several ways to enable this mode; one of them is to use <code class="language-python">app.config</code>. The <code class="language-python">config</code> attribute of a Flask app is a dictionary. You can enable the development mode like this:</p>
+<pre><code class="language-python">app.config['DEBUG'] = True</code></pre>
+<p>Familiar, isn't it? Like with dictionaries, we use a key, <code class="language-python">DEBUG</code> in this case, and set a value. A simple tool conceals the huge potential for project development.</p>
+<p>Let's also talk about the <code class="language-python">Environment: production</code> line. It tells us that the Flask is running as a server. Actually, that's why it warns us not to use the current configuration — we are working with a test web server that is not protected. We'll talk about how to switch to an operational web server a little later.</p>
+<h5 id="changing-the-settings">Changing the settings</h5>
+<p>To make your config better, let's see how you can make several changes in the settings of your application at once:</p>
+<pre><code class="language-python">app.config.update({
+    'DEBUG': True,
+    'TESTING': True
+})</code></pre>
+<p>In the example above, we have enabled both debug and test modes. So, you can set only one specific setting or multiple values at once.</p>
+<p>Now, let's see what else we can do. There are several other settings that we can configure besides the debug mode. First, let's deal with the <strong>secret key</strong>, which will keep our app users' privacy. It can be created by using the <code class="language-python">os</code> module:</p>
+<pre><code class="language-python">import os
+
+key = os.urandom(24)  # specify the length in brackets
+app.config['SECRET_KEY'] = key</code></pre>
+<p>Alternatively, you can use the same <code class="language-python">app.config.update</code> method to put the key in the settings and become a valiant defender of personal data. Instead of using the <code class="language-python">os</code> module, we can hit the keyboard 3 times and store the result as a secret key. It is, in fact, an ordinary string, a code word. However, <code class="language-python">os.urandom</code> is more practical.</p>
+<p>We will cover the secret key purpose in the upcoming topics, but it's good to know how to configure it since it's one of the most important settings.</p>
+<h5 id="exception-distinction">Exception distinction</h5>
+<p>Next comes a rather handy and intriguing setting that provides us with the ability to <strong>switch exceptions</strong>. This means that we can run our server and tell it, for example, to show specific errors instead of showing <code class="language-python">Internal Server Error</code> only. We can switch the exception handling method. Sometimes, it can be useful when you need to make a web application that works at all costs and does not crash with an error. For this purpose, Flask has a separate setting that is called <code class="language-python">PROPAGATE_EXCEPTIONS</code>. You can turn it on in the following way:</p>
+<pre><code class="language-python">app.config['PROPAGATE_EXCEPTIONS'] = True</code></pre>
+<p>In other words, we can tell Flask to blend all exceptions into one. There are a few other settings that we will discover in the future. For the moment, we don't need them.</p>
+<h5 id="configuration-files">Configuration files</h5>
+<p>We have figured out how to use a couple of commands to customize an application. Imagine a situation when we have a project with several applications. This approach will no longer be convenient, as you'll need to re-set each setting for each application or copy them from the previous one. We can use <strong>configuration files </strong>instead. We'll create a Python file that contains our settings just like regular variables:</p>
+<pre><code class="language-python"># inside file 'settings.py'
+
+DEBUG = True</code></pre>
+<p>Now, we need to upload this file to our project and force the applications to use it. We can do it by this:</p>
+<pre><code class="language-python">from flask import Flask
+
+
+app = Flask('main')
+app.config.from_object('settings')
+
+@app.route('/')
+def index():
+    return 'Wow! Debugging now!'
+
+app.run()
+</code></pre>
+<p>Here is your simple application with a couple of changes. Specifically, we use the <code class="language-python">app.config.from_object('settings')</code><strong> </strong>method to load it to the app. Now, you can start it and check:</p>
+<p style="text-align: center;"><img alt="" height="198" src="https://ucarecdn.com/4cc1e505-61ab-4000-94ed-b638e471f05f/" width="746"/></p>
+<h5 id="environment-variables">Environment variables</h5>
+<p>In addition to Python configuration files, we can store settings in <strong>system variables</strong>! We need to create them first; there are several ways to do this. We will use the command line for it.</p>
+<p>Linux:</p>
+<pre><code class="language-python">$ export FLASK_CONF_VAR=path/to/settings.py</code></pre>
+<p>Windows:</p>
+<pre><code class="language-python">&gt; set FLASK_CONF_VAR=path/to/settings.py</code></pre>
+<p></p><div class="alert alert-warning">Flask supports only upper-case variables.</div><p></p>
+<p>The next step is to show our program that there are settings to adopt from a system variable. To do this, use the <code class="language-python">from_envvar</code> method. The rest of the code remains:</p>
+<pre><code class="language-python">from flask import Flask
+
+app = Flask('main')
+app.config.from_envvar('FLASK_CONF_VAR')
+
+@app.route('/')
+def index():
+    return 'Wow! Debugging now!'
+
+app.run()
+</code></pre>
+<p>If you launch the application again, you'll see the same output as before. It means that our program absorbed the settings and successfully launched the debug mode that we have set in the file.</p>
+<h5 id="conclusion">Conclusion</h5>
+<p>In this topic, we have talked about general Flask settings and how we can apply them. One of the most important things in Flask is the developer mode. It provides a detailed log of the program errors. You can turn it on manually in the console, store the settings in a file or a special system variable. They speed things up terrifically. Good luck with the code challenges! </p></body></html>

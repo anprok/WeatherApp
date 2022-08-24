@@ -1,0 +1,197 @@
+<h2>Accessing raw DB</h2>
+<p>You have already seen some SQL commands. Let's see how we can apply them in Python. First thing first, we need to import the <code class="language-python">sqlite3</code> library. Note that this library is preinstalled in Python.</p>
+
+<h5 id="connection-and-cursor">Connection and cursor</h5>
+
+<p>First, to work with a database, you need to create a <code class="language-python">Connection</code> object that represents the database:</p>
+
+<pre><code class="language-python">conn = sqlite3.connect("myfirstrawdatabase.db") </code></pre>
+
+<p>If there is no DB with such a name, it will be generated. You can create a database in RAM if you want to delete it when the program stops. To do it, pass <code class="language-python">:memory:</code> instead of a DB's name to the <code class="language-python">connect()</code> method.</p>
+
+<p>After creating a connection, we need to create a cursor. It can be viewed as a pointer to one row in a set of rows. Most of the tasks with DB are performed with it. For example, let's see how to create a table:</p>
+
+<pre><code class="language-python">c = conn.cursor()
+c.execute(
+    """ CREATE TABLE pets (
+    name text,
+    species text,
+    age integer
+)
+"""
+)
+conn.commit()</code></pre>
+
+<p>As you can see, SQL commands in Python consist of SQLite with wrappings; you can pass <code class="language-python">update</code> or <code class="language-python">delete</code> statements directly to the <code class="language-python">.execute()</code> method. The <code class="language-python">execute()</code> method performs one SQL command at a time. If you want to execute several commands, use <code class="language-python">executescript()</code>. You may notice that the command is written in six quotes instead of two. This is the so-called docstring that allows writing multiple lines of code inside it. For example, if you try to change 6 quotes to 2, you will get an error. The <code class="language-python">commit()</code>method saves all your changes and applies them to a DB. You can write it after every time you execute a command. Once we've applied all our changes to the DB, we can close the connection to it.</p>
+
+<pre><code class="language-python">conn.close()</code></pre>
+
+<p>Inserting multiple entries at a time can be done in this way:</p>
+
+<pre><code class="language-python">some_pets = [("Bob", "dog", 3), ("Leo", "cat", 2), ("Captain", "parrot", 1)]
+c.executemany("INSERT into pets VALUES (?, ?, ?)" , some_pets)
+</code></pre>
+
+<p>SQL commands are executed from the string, so we need to pass variables to it to simplify input. It can be done via question mark placeholders and a list of tuples, as shown in the example. <code class="language-python">Executemany()</code> iterates over our list and places its contents in the corresponding rows.</p>
+
+<h5 id="retrieving-data-from-db">Retrieving data from DB</h5>
+
+<p>For example, let's see how to print DB contents. We already have a table named <code class="language-python">pets</code> in <code class="language-python">myfirstrawdatabase</code>: </p>
+
+<pre><code class="language-python">for row in c.execute("SELECT * FROM pets"):
+    print(row)
+
+#This will return:
+#('Bob', 'dog', 3)
+#('Leo', 'cat', 2)
+#('Captain', 'parrot', 1)</code></pre>
+
+<p>As you can see, after executing a <code class="language-python">SELECT</code> statement, we can use the cursor as an iterator. Also, we can retrieve data using <code class="language-python">fetchone()</code> or <code class="language-python">fetchall()</code> methods. The first one returns a tuple, the second one returns a list of tuples.</p>
+
+<p>For example, the following code snippet will return the same result:</p>
+
+<pre><code class="language-python">c.execute("SELECT * FROM pets")
+for row in c.fetchall():
+    print(row)
+
+#This will return:
+#('Bob', 'dog', 3)
+#('Leo', 'cat', 2)
+#('Captain', 'parrot', 1)</code></pre>
+
+<p>The <strong>primary key</strong> (PK) is a field that uniquely defines an entry. In sqlite3, PK is created automatically, but in other DBs, we must create it manually. To display entries with primary keys, we need to pass <code class="language-python">rowid</code>, in addition to other arguments to the <code class="language-python">SELECT</code> statement. For example:</p>
+
+<pre><code class="language-python">c.execute("SELECT rowid,* FROM pets")
+for record in c.fetchall():
+    print(record)
+
+#This will return:
+#(1, 'Bob', 'dog', 3)
+#(2, 'Leo', 'cat', 2)
+#(3, 'Captain', 'parrot', 1)</code></pre>
+
+<p>As we can see, our first column is the PK of each entry.</p>
+
+<h5 id="filtering">Filtering</h5>
+
+<p>Let's discuss how we can retrieve data from a DB. Suppose you have a large DB, so selecting and retrieving all data, of course, is not an option. It would be great to select only certain entries from the DB. It can be done with one magic word: <code class="language-python">WHERE</code>. Let's make some more entries in our <code class="language-python">pets</code> table and select all entries containing <code class="language-python">parrots</code>:</p>
+
+<pre><code class="language-python">some_pets = [("Max", "dog", 5), ("Kitty", "cat", 5), ("Ozzy", "parrot", 1)]
+c.executemany("INSERT into pets VALUES (?, ?, ?)" , some_pets)
+
+c.execute("SELECT * FROM pets WHERE species = 'parrot' ")
+for record in c.fetchall():
+    print(record)
+
+#This will return:
+#('Captain', 'parrot', 1)
+#('Ozzy', 'parrot', 1)</code></pre>
+
+<p>Also, we can specify a <code class="language-python">WHERE</code> condition by adding <code class="language-python">AND</code>, <code class="language-python">OR</code>. For example:</p>
+
+<pre><code class="language-python">c.execute("SELECT * FROM pets WHERE breed = 'parrot' AND name = 'Captain' ")
+for record in c.fetchall():
+    print(record)
+
+#This will return:
+#('Captain', 'parrot', 1)</code></pre>
+
+<h5 id="output-ordering">Output ordering</h5>
+
+<p>Ordering of the output is done with the <code class="language-python">ORDER BY</code> keywords. After <code class="language-python">ORDER BY</code>, we put the name of the column by which we want to order our output and then, optionally, specify it — ascending or descending order via <code class="language-python">ASC</code> and <code class="language-python">DESC</code>, correspondingly.</p>
+
+<pre><code class="language-python">c.execute("SELECT rowid, * FROM pets ORDER BY rowid DESC")
+for record in c.fetchall():
+    print(record)
+
+#This will return:
+#(6, 'Ozzy', 'parrot', 1)
+#(5, 'Kitty', 'cat', 5)
+#(4, 'Max', 'dog', 5)
+#(3, 'Captain', 'parrot', 1)
+#(2, 'Leo', 'cat', 2)
+#(1, 'Bob', 'dog', 3)
+
+</code></pre>
+
+<p>There is also a prebuilt text ordering in alphabetical order:</p>
+
+<pre><code class="language-python">c.execute("SELECT rowid, * FROM pets ORDER BY name ASC")
+for record in c.fetchall():
+    print(record)
+
+#This will return:
+#(1, 'Bob', 'dog', 3)
+#(3, 'Captain', 'parrot', 1)
+#(5, 'Kitty', 'cat', 5)
+#(2, 'Leo', 'cat', 2)
+#(4, 'Max', 'dog', 5)
+#(6, 'Ozzy', 'parrot', 1)</code></pre>
+
+<h5 id="variables">Variables</h5>
+
+<p>Using variables in raw querying is easy. It is prohibited to use Python string operations to assemble string operations due to <strong>SQL Injection</strong> <strong>attacks.</strong> SQL injection is an attack that is performed through editing SQL commands by passing some code to variables:</p>
+
+<pre><code class="language-python">#Never do this -- insecure!
+var = input()
+c.execute("SELECT * from pets WHERE name = '{0}' ".format(var))</code></pre>
+
+<p>For example, we can pass <code class="language-python">smth' OR '1' = '1</code> to <code class="language-python">var</code>, and all of the data will be exposed.</p>
+
+<p>The proper way of using the variables is by using DB-API's parameter substitution. To insert a variable into a query string, you should use placeholders or named parameters:</p>
+
+<pre><code class="language-python"># Using placeholders
+c.execute("INSERT into pets VALUES (?, ?, ?)", ("Tom", "cat", 2))
+
+# Using named parameter
+c.execute("SELECT * from pets WHERE name = pet_name", {"pet_name": "Leo"})</code></pre>
+
+<h5 id="conclusion">Conclusion</h5>
+
+<p>In this topic, we've learned the basics of raw querying. Now we know how to:</p>
+
+<ul>
+	<li>Carry out <code class="language-python">CRUD</code> operations;</li>
+	<li>Create a connection to DB;</li>
+	<li>How to use the cursor <code class="language-python">cursor.execute()</code> method;</li>
+	<li>How to use variables properly;</li>
+</ul>
+
+<p>Also, we've learned several SQL keywords:</p>
+
+<table border="1" cellpadding="1" cellspacing="1" style="height: 407px; width: 781px;">
+	<tbody>
+		<tr>
+			<td style="text-align: center;">Keywords</td>
+			<td style="text-align: center;">Corresponding operation</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">INSERT into &lt;name of table&gt; VALUES (?, ?, ? ...)</code></td>
+			<td>insert an entry</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">SELECT &lt;column(s)&gt; from &lt;name of table&gt;</code></td>
+			<td>retrieve data from a table</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">WHERE &lt;condition&gt; OR(AND) &lt;another condition&gt;</code></td>
+			<td>filtering</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">ORDER BY &lt;column&gt; ASC(DESC)</code></td>
+			<td>order the output</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">UPDATE &lt;name of table&gt; SET &lt;column&gt; = &lt;new content&gt;</code></td>
+			<td>update an entry</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">DELETE from &lt;name of table&gt;</code></td>
+			<td>delete an entry</td>
+		</tr>
+		<tr>
+			<td><code class="language-python">DROP TABLE &lt;name of table&gt;</code></td>
+			<td>delete a table</td>
+		</tr>
+	</tbody>
+</table>

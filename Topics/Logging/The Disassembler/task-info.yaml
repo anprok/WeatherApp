@@ -1,0 +1,19 @@
+type: code
+files:
+- name: main.py
+  visible: true
+  text: |-
+    from flask import Flask, request
+
+    app = Flask('main')
+
+    @app.route('/')
+    def deassemle_request():
+        #code here
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17615#comment
+status: Solved
+feedback:
+  message: <html>Correct solution</html>
+  time: Wed, 24 Aug 2022 12:18:42 UTC
+record: -1

@@ -1,0 +1,128 @@
+<h2>Advanced responses</h2>
+<p>You are on your way to becoming a first-class developer! Don't get overexcited, though. A lot of new and fascinating things lie ahead. Today, we will talk about<strong> redirects</strong> and <strong>flash messages</strong>. They can improve your app, guide users, show a notification, and so on. Let's get it started!</p>
+
+<h5 id="redirects">Redirects</h5>
+
+<p>Let's cover the redirect first. We need it to send users to another page in a forced manner. Let's take a simple example. You go to YouTube, click on the login button, enter your username and password, and... you are brought back to the main page. The magic in action! Let's take a look at how it works in practice.</p>
+
+<p>As usual, we need to import necessary objects and initialize the app. After that, we create two view functions so that one redirects to another. To do this, use the <code class="language-python">redirect</code> method to return a value:</p>
+
+<pre><code class="language-python">from flask import Flask, redirect
+
+app = Flask('main')
+
+@app.route('/')
+def main_view():
+    return "Hello, it's the Main Page!"
+
+@app.route('/redirector')
+def redirect_view():
+    return redirect('/')
+
+app.run()</code></pre>
+
+<p>The <code class="language-python">redirect</code> method is rather simple. We pass a string that specifies the destination URL; that's it. It has several additional arguments, but we won't talk about them for now. You can find the exhaustive list in the official <a target="_blank" target="_blank" target="_blank" target="_blank" href="https://flask.palletsprojects.com/en/2.0.x/api/#useful-functions-and-classes" rel="noopener noreferrer nofollow">Flask documentation</a>.</p>
+
+<p>Good! Now, let's start our program and see how it works. First, go to the root:</p>
+
+<p style="text-align: center;"><img alt="" src="https://ucarecdn.com/345fa650-8c97-40be-8410-0159b58c9ca1/"></p>
+
+<p>When you go to <code class="language-python">/redirector</code>, the site redirects you to the main page! That's how the redirect works: specify the URL, and a site or app will bring you to it:</p>
+
+<p><img alt="" src="https://ucarecdn.com/4b6f9e87-bd91-4bca-88d6-9fe032e99907/">  ---&gt;   <img alt="" src="https://ucarecdn.com/25aa01ed-ef50-4062-8f36-ba6cf56d4687/"></p>
+
+<p>You can use this method to redirect users to the home page after authorization, a placeholder for mail confirmation, and so on. The method is extremely handy.</p>
+
+<h5 id="flash-messages">Flash messages</h5>
+
+<p>What do you know about <strong>flash messages</strong>? If not much, we have something for you — flashes (also known as <strong>pop-ups</strong>) are notifications in a browser. Flash messages are saved after redirection. For example, users log in to our site, and we immediately send them a flash with a message that the login was successful. After that, we redirect them to the main page, and the flash message remains there. Let's take a look at the implementation. As usual, we must import methods and objects first:</p>
+
+<pre><code class="language-python">from flask import Flask, flash, get_flashed_messages
+
+app = Flask('main')</code></pre>
+
+<p>After that, we need to specify the secret key. It allows us to use flashes:</p>
+
+<pre><code class="language-python">app.config['SECRET_KEY'] = 'So-Seckrekt'</code></pre>
+
+<p>And now we should define two view functions. The main page view function is conventional:</p>
+
+<pre><code class="language-python">@app.route('/')
+def main_view():
+    return "Hello, it's the Main Page!"
+</code></pre>
+
+<p>But the second one is more intriguing. That's where we use something new! Take a look:</p>
+
+<pre><code class="language-python">@app.route('/not_ready')
+def redirect_view():
+    flash('This page is not ready yet! Return later!')
+    return get_flashed_messages()[0]</code></pre>
+
+<p>The <code class="language-python">flash</code> method sends a message with the specified text, and the <code class="language-python">get_flashed_messages</code> function returns a list of all flashed messages. This is a simple way to inform or warn your users. Now, it is time to start your app with <code class="language-python">app.run()</code> and bring your creation to light! Your main page:<br>
+ </p>
+
+<p style="text-align: center;"><img alt="" src="https://ucarecdn.com/6f5771ca-31f5-430f-9c74-4a30611b313f/"></p>
+
+<p>If you go to <code class="language-python">/not_ready</code>, Flask will send you a flash message that says <code class="language-python">This page is not ready yet! Return later!</code> This is exactly what we wanted.</p>
+
+<p style="text-align: center;"><img alt="" src="https://ucarecdn.com/5b07971a-79c5-4c77-9bac-b6d8b54bf103/"></p>
+
+<h5 id="improved-flashes">Improved flashes</h5>
+
+<p>Flashes can have an additional argument, a <strong>category.</strong> You can pass it to the flash method to indicate that the message belongs to a specific type. It can be a string, but it should convey the essence of the message. For example, if you want to notify users that they are looking at the site for 5 hours straight, you can use the <code class="language-python">info</code> category. If you want to tell your users that they don't have the right to do something, use <code class="language-python">error</code>.</p>
+
+<p>This is pretty easy to implement by adding a second argument to the flash function:</p>
+
+<pre><code class="language-python">flash('You are hanging around on our site for more than 5 hours. Maybe, you need a break', 'info')</code></pre>
+
+<p>Categories can help you separate notifications and show them in the right place with the right label. Now, we will need our template writing skills. Now, try to use all Flask skills to create a page with the basic template, <strong>base.html</strong>. Let's try it!</p>
+
+<p>First, let's see how base.html looks like:</p>
+
+<pre><code class="language-html">&lt;!doctype html&gt;
+&lt;title&gt;Super-App&lt;/title&gt;
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    &lt;ul class=flashes&gt;
+    {% for category, message in messages %}
+      &lt;li class="{{ category }}"&gt;{{ message }}&lt;/li&gt;
+    {% endfor %}
+    &lt;/ul&gt;
+  {% endif %}
+{% endwith %}
+{% block body %}{% endblock %}</code></pre>
+
+<p>This is a standard HTML document. We specify the name of the web page, <code class="language-python">Super-App</code>, and then use loops to display the messages together with their categories.</p>
+
+<p>Now, let's create another template — <strong>main.html</strong>. It is our home page:</p>
+
+<pre><code class="language-html">{% extends "base.html" %}
+{% block body %}
+&lt;h1&gt;Welcome to the best website in the world, the galaxy, and all of our reality!&lt;/h1&gt;
+{% endblock %}</code></pre>
+
+<p>Once everything is ready, we can switch back to Python. After import and app initialization, we create a view function for the main page and launch the app:</p>
+
+<pre><code class="language-python">from flask import Flask, flash, redirect, get_flashed_messages
+
+app = Flask('main')
+
+@app.route('/')
+def main_view():
+    flash('You hang on our site for more than 5 hours in a row. Take a break, please.', 'info')
+    return render_template('main.html')
+
+app.run()</code></pre>
+
+<p>We'll see the main page with a notification on the top:</p>
+
+<p><img alt="" src="https://ucarecdn.com/71a04ad1-1f91-4b8e-90a0-acc512817af0/"></p>
+
+<p>The last thing we would like to mention is the <code class="language-python">get_flahed_messages</code> method. It has a very useful argument: <code class="language-python">category_filter</code>. This argument is a list that contains all message categories. For example, if you want to get only informational flashes under the <code class="language-python">info</code> category, you can do the following:</p>
+
+<pre><code class="language-python">get_flashed_messages(category_filter=['info'])</code></pre>
+
+<h5 id="conclusion">Conclusion</h5>
+
+<p>We have learned the basics of redirects and flashes. Now, we know how to incorporate them into an application. To sum up, redirects can be used to lead users to a specific page, different from the initial one. Flashes, in their turn, can show users messages and notifications. Down with the theory; let's go and practice!</p>

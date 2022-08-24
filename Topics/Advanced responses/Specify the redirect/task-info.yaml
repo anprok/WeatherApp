@@ -1,0 +1,18 @@
+type: choice
+is_multiple_choice: true
+options:
+- text: <code>redirect('/')</code>
+- text: <code>redirect('user', '/login')</code>
+- text: <code>redirect(from='/', to='/data')</code>
+- text: <code>redirect('/', 200)</code>
+files:
+- name: main.py
+  visible: true
+  text: |+
+    #  You can experiment here, it won’t be checked
+
+  learner_created: false
+feedback_link: https://hyperskill.org/learn/step/17343#comment
+status: Solved
+record: -1
+local_check: false
